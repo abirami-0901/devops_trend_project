@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: trend
-          image: abirami-0901/trend-app:latest
+          image: abirami0901/trend-app:latest
           ports:
             - containerPort: 3000
           readinessProbe:
