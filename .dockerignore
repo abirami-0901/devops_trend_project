@@ -1,0 +1,9 @@
+.git
+.gitignore
+README.md
+Jenkinsfile
+k8s
+terraform
+monitoring
+screenshots
+*.md

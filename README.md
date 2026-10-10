@@ -1,91 +1,27 @@
-DevOps Practice Project – Dist Directory
+# Trend – Production Deployment (Docker, Terraform, EKS, Jenkins)
 
-This repository contains the production-ready build files (dist folder) for DevOps practice and deployment exercises.
+Deployment of the Trendify React app (prebuilt `dist/`) served by Nginx on port 3000.
 
-It is intentionally structured to help learners focus on CI/CD pipelines, hosting, containerization, and infrastructure setup rather than application development.
+## Architecture
+GitHub push -> webhook -> Jenkins (EC2) -> docker build -> DockerHub -> kubectl -> EKS -> LoadBalancer
 
-📁 What This Repository Contains
+## Setup
+1. **Local Docker test**
+   `docker build -t trend-app . && docker run -p 3000:3000 trend-app` -> http://localhost:3000
+2. **DockerHub**: create a public repo `trend-app`.
+3. **Infrastructure**
+   `cd terraform && terraform init && terraform apply -var my_ip_cidr=<ip>/32 -var key_name=<keypair>`
+4. **Jenkins**: open the `jenkins_url` output, unlock with
+   `sudo cat /var/lib/jenkins/secrets/initialAdminPassword`, install plugins
+   (Docker Pipeline, Git, GitHub, Kubernetes CLI, Pipeline), add credential `dockerhub-creds`.
+5. **Pipeline job**: Pipeline from SCM -> this repo -> `Jenkinsfile`; enable "GitHub hook trigger".
+6. **Webhook**: GitHub repo -> Settings -> Webhooks -> `http://<jenkins-ip>:8080/github-webhook/` (push events).
+7. **Monitoring**: `./monitoring/install.sh` (Prometheus + Grafana).
+8. **Get the Load Balancer**: `kubectl get svc trend-service`
 
-dist/ – Compiled and production-ready static files
+## Screenshots
+Add to `screenshots/`: local app, DockerHub repo, terraform apply, EKS nodes, Jenkins pipeline run,
+webhook delivery, `kubectl get pods,svc`, app via LB, Grafana dashboard.
 
-HTML
-
-CSS
-
-JavaScript
-
-Assets (images, fonts, etc.)
-
-These files are ready to deploy to:
-
-Web servers (Nginx / Apache)
-
-Cloud platforms (AWS S3, Azure Blob, GCP Storage)
-
-Containerized environments (Docker + Nginx)
-
-Kubernetes clusters
-
-CI/CD pipeline demonstrations
-
-🎯 Purpose of This Repository
-
-This repository is designed for:
-
-DevOps beginners
-
-CI/CD practice
-
-Deployment pipeline testing
-
-Docker & Kubernetes deployment exercises
-
-Web server configuration practice
-
-Reverse proxy and load balancer setup
-
-The goal is to simulate real-world deployment scenarios using already built application files.
-
-❓ Why is there NO package.json?
-
-You may notice that this repository does not include:
-
-package.json
-
-node_modules
-
-Source code (src/)
-
-Build tools configuration
-
-✅ Reason:
-
-This repository only contains the final production build output (dist), not the development source code.
-
-In a typical project:
-
-Developers write source code.
-
-The project is built using tools like:
-
-Node.js
-
-Webpack
-
-Vite
-
-React (or other frameworks)
-
-A dist/ folder is generated.
-
-Only the production build is deployed to servers.
-
-This repository represents step 4 only.
-
-Since this is already the compiled output:
-
-No dependencies are required
-
-No build process is required
-
-No package.json is needed
+## Load Balancer ARN
+`aws elbv2 describe-load-balancers` (Classic ELB: use `aws elb describe-load-balancers`; see note below).
