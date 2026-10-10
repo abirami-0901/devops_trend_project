@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: trend
-          image: YOUR_DOCKERHUB_USER/trend-app:latest
+          image: abirami-0901/trend-app:latest
           ports:
             - containerPort: 3000
           readinessProbe:
