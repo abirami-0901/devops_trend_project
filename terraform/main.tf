@@ -125,7 +125,7 @@ resource "aws_instance" "jenkins" {
     #!/bin/bash
     set -eux
     apt-get update -y
-    apt-get install -y fontconfig openjdk-17-jre docker.io git unzip curl
+    apt-get install -y fontconfig openjdk-21-jre docker.io git unzip curl
 
     # Jenkins
     curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key -o /usr/share/keyrings/jenkins-keyring.asc
@@ -155,7 +155,7 @@ module "eks" {
   version = "~> 20.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.30"
+  cluster_version = "1.37"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
@@ -179,6 +179,7 @@ module "eks" {
   eks_managed_node_groups = {
     default = {
       instance_types = ["t3.medium"]
+      ami_type       = "AL2023_x86_64_STANDARD"
       min_size       = 2
       max_size       = 3
       desired_size   = 2
@@ -190,4 +191,15 @@ output "jenkins_url" { value = "http://${aws_instance.jenkins.public_ip}:8080" }
 output "eks_cluster"  { value = module.eks.cluster_name }
 output "kubeconfig_cmd" {
   value = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
+}
+
+# Let the Jenkins server reach the EKS API (port 443)
+resource "aws_security_group_rule" "jenkins_to_eks" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = module.eks.cluster_security_group_id
+  source_security_group_id = aws_security_group.jenkins.id
+  description              = "Jenkins to EKS API"
 }
