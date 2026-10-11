@@ -20,7 +20,7 @@ GitHub push -> webhook -> Jenkins (EC2) -> docker build -> DockerHub -> kubectl 
 8. **Get the Load Balancer**: `kubectl get svc trend-service`
 
 ## Screenshots
-Add to `screenshots/`: local app, DockerHub repo, terraform apply, EKS nodes, Jenkins pipeline run,
+Attached : local app, DockerHub repo, terraform apply, EKS nodes, Jenkins pipeline run,
 webhook delivery, `kubectl get pods,svc`, app via LB, Grafana dashboard.
 
 ## Load Balancer ARN
